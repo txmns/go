@@ -37,10 +37,27 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		if event.Name != "" && event.Op == "put" && strings.HasSuffix(event.Name, ".go") {
-			reformat(event.ID, event.Name)
+		if event.Name != "" && strings.HasSuffix(event.Name, ".go") {
+			switch event.Op {
+			case "put":
+				reformat(event.ID, event.Name)
+			case "new":
+				setTag(event.ID)
+			}
 		}
 	}
+}
+
+func setTag(id int) {
+	w, err := acme.Open(id, nil)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	defer w.CloseFiles()
+	
+	w.Ctl("cleartag")
+	w.Write("tag", []byte(" Look Font Edit |i+ |i- g "))
 }
 
 func reformat(id int, name string) {
